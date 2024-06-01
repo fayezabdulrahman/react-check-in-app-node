@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const authRoute = require("./api/routes/auth.js");
+const protectedRoute = require("./api/routes/hello.js");
 const app = express();
 const bodyParser = require("body-parser");
 require("dotenv").config();
@@ -35,6 +36,7 @@ mongoose
     });
 
     app.use("/", authRoute);
+    app.use("/protected", protectedRoute);
 
     app.listen(PORT, () => {
       console.log(`Server is running on port http://localhost:${PORT}`);

@@ -3,6 +3,7 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const validationSchema = require("../util/validationSchema");
+const tokenService = require('../services/auth-token-service');
 const router = express.Router();
 
 const handlError = (error, res, alternative) => {
@@ -54,7 +55,9 @@ router.post("/login", async (req, res) => {
 
     if (!isValidPass) return res.status(422).send("Invalid password");
 
-    res.status(200).send("Login successful");
+    const token = tokenService.createToken(userExists);
+
+    res.status(200).send({token, message: "Login Successful"});
   } catch (error) {
     handlError(error, res, "Unable to login user");
   }
