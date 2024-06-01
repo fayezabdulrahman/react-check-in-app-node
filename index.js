@@ -1,17 +1,20 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const authRoute = require('./api/routes/auth.js');
+const express = require("express");
+const mongoose = require("mongoose");
+const authRoute = require("./api/routes/auth.js");
 const app = express();
-require('dotenv').config()
+const bodyParser = require("body-parser");
+require("dotenv").config();
 
 const PORT = process.env.PORT || 7000;
 const MONGO_URL = process.env.MONGO_URL || "";
 
-mongoose.connect(MONGO_URL)
+mongoose
+  .connect(MONGO_URL)
   .then(() => {
     console.log("Connected to DB successfully");
 
-    app.use(express.json());
+    app.use(bodyParser.urlencoded({ extended: false }));
+    app.use(bodyParser.json());
 
     // allow CORS
     app.use((req, res, next) => {

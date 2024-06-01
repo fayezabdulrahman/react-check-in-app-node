@@ -39,5 +39,8 @@ Thumbs.db
 # dot env
 .env
 
+# vs code
+.vscode
+
 # Node Modules #
 node_modules/
