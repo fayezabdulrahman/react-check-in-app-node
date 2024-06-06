@@ -48,23 +48,20 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const user = await validationSchema.loginValidation.validate(req.body);
-    const userExists = await getUserByEmail(user.email);
-    console.log("userExists details", userExists);
-    if (!userExists) return res.status(422).send("Invalid email!");
+    const payload = await validationSchema.loginValidation.validate(req.body);
+    const user = await getUserByEmail(payload.email);
+    console.log("user details", user);
+    if (!user)
+      return res.status(422).send({ message: "Invalid email provided." });
 
-    const isValidPass = bcrypt.compare(user.password, userExists.password);
+    const isValidPass = bcrypt.compare(payload.password, user.password);
 
-    if (!isValidPass) return res.status(422).send("Invalid password");
+    if (!isValidPass)
+      return res.status(422).send({ message: "Invalid password entered." });
 
-    const token = tokenService.createToken(userExists);
+    const token = tokenService.createToken(user);
 
-    const refreshToken = tokenService.createRefreshToken(userExists);
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      path: "/",
-    });
+    const refreshToken = tokenService.createRefreshToken(user);
 
     res.cookie("refreshToken", refreshToken, { httpOnly: true, path: "/" });
 
@@ -88,10 +85,6 @@ router.get("/refreshToken", (req, res, next) => {
         if (err)
           return res.status(403).send({ message: "Error with refresh token" });
         const token = tokenService.createToken(user);
-        res.cookie("token", token, {
-          httpOnly: true,
-          path: "/",
-        });
         res
           .status(200)
           .send({ token, message: "Token refreshed successfully" });
@@ -104,10 +97,6 @@ router.get("/refreshToken", (req, res, next) => {
 
 router.post("/logout", (req, res) => {
   res.clearCookie("refreshToken", { httpOnly: true, path: "/" });
-  res.clearCookie("token", {
-    httpOnly: true,
-    path: "/",
-  });
 
   res.status(200).send({ message: "Logout successful" });
 });

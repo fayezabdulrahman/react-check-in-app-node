@@ -9,7 +9,7 @@ const createToken = (user) => {
     lastName: user.lastName,
   };
   const token = jwt.sign(userInfo, process.env.TOKEN_SECRET_KEY, {
-    expiresIn: "1h",
+    expiresIn: "15m",
   });
   return token;
 };
@@ -23,17 +23,26 @@ const createRefreshToken = (user) => {
   const refreshToken = jwt.sign(
     userInfo,
     process.env.REFRESH_TOKEN_SECRET_KEY,
-    { expiresIn: "1d" }
+    { expiresIn: "30m" }
   );
   return refreshToken;
 };
 
 const verifyToken = (req, res, next) => {
-  const token = req.cookies?.token;
-  if (!token) return res.status(401).send({ message: "Access denied!" });
+  const authorizationHeader = req.header("Authorization");
+
+  // if we have auth header
+  if (!authorizationHeader) return res.status(401).send({ message: "Access denied!" });
+
+  const token = authorizationHeader.includes("Bearer");
+
+
+  if (!token) return res.status(401).send({ message: "Access denied!!!!!" });
   try {
-    const decodedUser = jwt.verify(token, process.env.TOKEN_SECRET_KEY);
-    req.user = decodedUser;
+    const extractedToken = authorizationHeader.split(" ")[1];
+
+    const user = jwt.verify(extractedToken, process.env.TOKEN_SECRET_KEY);
+    req.user = user;
     next();
   } catch (error) {
     res.status(401).json({ message: "Invalid token" });
