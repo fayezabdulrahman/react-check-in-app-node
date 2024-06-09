@@ -23,7 +23,7 @@ const createRefreshToken = (user) => {
   const refreshToken = jwt.sign(
     userInfo,
     process.env.REFRESH_TOKEN_SECRET_KEY,
-    { expiresIn: "30m" }
+    { expiresIn: "20m" }
   );
   return refreshToken;
 };

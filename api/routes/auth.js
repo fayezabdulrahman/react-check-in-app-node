@@ -54,7 +54,7 @@ router.post("/login", async (req, res) => {
     if (!user)
       return res.status(422).send({ message: "Invalid email provided." });
 
-    const isValidPass = bcrypt.compare(payload.password, user.password);
+    const isValidPass = await bcrypt.compare(payload.password, user.password);
 
     if (!isValidPass)
       return res.status(422).send({ message: "Invalid password entered." });
@@ -71,19 +71,20 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get("/refreshToken", (req, res, next) => {
+router.get("/refreshToken", (req, res) => {
   const { refreshToken } = req.cookies;
 
   try {
     if (!refreshToken)
-      return res.status(401).send({ message: "Unauthorised!" });
+      return res.status(403).send({ message: "Unauthorised!" });
 
     jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET_KEY,
       (err, user) => {
-        if (err)
-          return res.status(403).send({ message: "Error with refresh token" });
+        if (err) {
+          return res.status(400).send({ message: "Refresh Token Expired" });
+        }
         const token = tokenService.createToken(user);
         res
           .status(200)
@@ -99,6 +100,15 @@ router.post("/logout", (req, res) => {
   res.clearCookie("refreshToken", { httpOnly: true, path: "/" });
 
   res.status(200).send({ message: "Logout successful" });
+});
+
+router.get("/me", tokenService.verifyToken, (req, res) => {
+  try {
+    res.status(200).send({ message: "authenticated" });
+  } catch (error) {
+    res.status(401).send({ message: "unauthenticated" });
+    console.log("error in protected route");
+  }
 });
 
 module.exports = router;
