@@ -7,6 +7,7 @@ const createToken = (user) => {
     id: user._id,
     firstName: user.firstName,
     lastName: user.lastName,
+    role: user.role
   };
   const token = jwt.sign(userInfo, process.env.TOKEN_SECRET_KEY, {
     expiresIn: "15m",
@@ -19,11 +20,12 @@ const createRefreshToken = (user) => {
     id: user._id,
     firstName: user.firstName,
     lastName: user.lastName,
+    role: user.role
   };
   const refreshToken = jwt.sign(
     userInfo,
     process.env.REFRESH_TOKEN_SECRET_KEY,
-    { expiresIn: "20m" }
+    { expiresIn: "1h" }
   );
   return refreshToken;
 };

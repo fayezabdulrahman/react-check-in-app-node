@@ -49,7 +49,9 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const payload = await validationSchema.loginValidation.validate(req.body);
-    const user = await getUserByEmail(payload.email);
+    const response = await getUserByEmail(payload.email);
+    const user = JSON.parse(JSON.stringify(response));
+
     console.log("user details", user);
     if (!user)
       return res.status(422).send({ message: "Invalid email provided." });
@@ -85,7 +87,10 @@ router.get("/refreshToken", (req, res) => {
         if (err) {
           return res.status(400).send({ message: "Refresh Token Expired" });
         }
-        const token = tokenService.createToken(user);
+
+        const userObj = JSON.parse(JSON.stringify(user));
+
+        const token = tokenService.createToken(userObj);
         res
           .status(200)
           .send({ token, message: "Token refreshed successfully" });
