@@ -2,9 +2,10 @@ const express = require("express");
 const mongoose = require("mongoose");
 const authRoute = require("./api/routes/auth.js");
 const protectedRoute = require("./api/routes/hello.js");
+const adminRoute = require("./api/routes/admin.js");
 const app = express();
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 require("dotenv").config();
 
@@ -22,9 +23,9 @@ mongoose
 
     // allow CORS
     let corsOptions = {
-      origin: 'http://localhost:5173',
+      origin: "http://localhost:5173",
       credentials: true,
-    }
+    };
     app.use(cors(corsOptions));
     // app.use((req, res, next) => {
     //   res.header("Access-Control-Allow-Origin", "*");
@@ -45,6 +46,7 @@ mongoose
 
     app.use("/", authRoute);
     app.use("/protected", protectedRoute);
+    app.use("/admin", adminRoute);
 
     app.listen(PORT, () => {
       console.log(`Server is running on port http://localhost:${PORT}`);

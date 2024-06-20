@@ -52,7 +52,6 @@ router.post("/login", async (req, res) => {
     const response = await getUserByEmail(payload.email);
     const user = JSON.parse(JSON.stringify(response));
 
-    console.log("user details", user);
     if (!user)
       return res.status(422).send({ message: "Invalid email provided." });
 

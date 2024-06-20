@@ -12,7 +12,7 @@ const registrationValidation = yup.object({
     .min(3, "Password must be greater than 3 characters."),
 });
 
-const loginValidation= yup.object({
+const loginValidation = yup.object({
   email: yup
     .string()
     .required("Email is required")
@@ -23,4 +23,23 @@ const loginValidation= yup.object({
     .min(3, "Password must be greater than 3 characters."),
 });
 
-module.exports = { registrationValidation, loginValidation };
+const questionValidation = yup.object({
+  label: yup.string().required("Question is required"),
+  componentType: yup.string(),
+  selectOptions: yup.array().of(yup.string()).default([]),
+  radioOptions: yup.array().of(yup.string()).default([]),
+  isRequired: yup.boolean().default(false),
+});
+const checkInValidation = yup.object({
+  checkInId: yup.string().required("CheckIn id is required"),
+  createdBy: yup.string().required("Publisher Name is Required"),
+  published: yup.boolean().default(false),
+  questions: yup.array().of(questionValidation).default([]),
+});
+
+module.exports = {
+  registrationValidation,
+  loginValidation,
+  questionValidation,
+  checkInValidation,
+};
