@@ -74,8 +74,9 @@ router.post("/publishCheckIn", async (req, res) => {
   try {
     const { checkInToPublish } = req.body;
 
-    console.log("check In Id from UI", checkInToPublish);
-
+    // unpublish previously published check-in
+    await CheckIn.updateMany({ published: true }, { published: false });
+    // publish new check-in selected from admin
     const result = await CheckIn.findOneAndUpdate(
       { checkInId: checkInToPublish },
       { published: true },
