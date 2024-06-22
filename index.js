@@ -7,6 +7,7 @@ const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+const tokenService = require('./api/services/auth-token-service.js');
 require("dotenv").config();
 
 const PORT = process.env.PORT || 7000;
@@ -46,7 +47,7 @@ mongoose
 
     app.use("/", authRoute);
     app.use("/protected", protectedRoute);
-    app.use("/admin", adminRoute);
+    app.use("/admin", tokenService.verifyToken, adminRoute);
 
     app.listen(PORT, () => {
       console.log(`Server is running on port http://localhost:${PORT}`);
