@@ -10,14 +10,6 @@ router.post("/createCheckin", async (req, res) => {
     console.log("request", req.body);
     const checkIn = await validationSchema.checkInValidation.validate(req.body);
 
-    // If the new check-in should be the latest, update others to not be latest
-    // if (checkIn.isLatestCheckIn) {
-    //   await CheckIn.updateMany(
-    //     { isLatestCheckIn: true },
-    //     { $set: { isLatestCheckIn: false } }
-    //   );
-    // }
-
     const saveNewCheckIn = new CheckIn({
       checkInId: checkIn.checkInId,
       createdBy: checkIn.createdBy,
@@ -69,7 +61,6 @@ router.get("/allCheckins", async (req, res) => {
   }
 });
 
-
 router.post("/publishCheckIn", async (req, res) => {
   try {
     const { checkInToPublish } = req.body;
@@ -92,12 +83,33 @@ router.post("/publishCheckIn", async (req, res) => {
         .status(200)
         .send({ message: "Check-in could not be pubslished", error: result });
     }
-
   } catch (error) {
     console.log("error", error);
     res
       .status(500)
-      .send({ messagae: "An error occured while publishing check-in", error: error });
+      .send({
+        messagae: "An error occured while publishing check-in",
+        error: error,
+      });
+  }
+});
+
+router.post("/updateCheckIn", async (req, res) => {
+  try {
+    const checkInToEdit = req.body;
+    const result = await CheckIn.findOneAndUpdate(
+      { checkInId: checkInToEdit.checkInId },
+      { questions: checkInToEdit.questions },
+      { new: true } // This option ensures the updated document is returned
+    ).select("-_id"); // exclude ID;
+    res.status(200).send({ message: "updated check-in successfully", checkIn: result});
+  } catch (error) {
+    res
+      .status(500)
+      .send({
+        messagae: "An error occured while updating check-in",
+        error: error,
+      });
   }
 });
 
