@@ -1,5 +1,5 @@
 const express = require("express");
-const CheckIn = require("../models/Checkin");
+const CheckIn = require("../models/CheckIn");
 const validationSchema = require("../util/validationSchema");
 
 const router = express.Router();

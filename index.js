@@ -3,11 +3,12 @@ const mongoose = require("mongoose");
 const authRoute = require("./api/routes/auth.js");
 const protectedRoute = require("./api/routes/hello.js");
 const adminRoute = require("./api/routes/admin.js");
+const userRoute = require("./api/routes/user.js");
 const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
-const tokenService = require('./api/services/auth-token-service.js');
+const tokenService = require("./api/services/auth-token-service.js");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 7000;
@@ -48,6 +49,7 @@ mongoose
     app.use("/", authRoute);
     app.use("/protected", protectedRoute);
     app.use("/admin", tokenService.verifyToken, adminRoute);
+    app.use("/user", tokenService.verifyToken, userRoute);
 
     app.listen(PORT, () => {
       console.log(`Server is running on port http://localhost:${PORT}`);
