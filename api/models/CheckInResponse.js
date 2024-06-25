@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
-const User = require('../models/User');
-const CheckIn = require('../models/CheckIn');
+const User = require("./User");
+const CheckIn = require("./CheckIn");
 
 const answerSchema = new mongoose.Schema(
   {
-    questionLabel: {
+    question: {
       type: String,
       required: true,
     },
@@ -16,21 +16,25 @@ const answerSchema = new mongoose.Schema(
   { _id: false }
 );
 
-const questionResponseSchema = new mongoose.Schema(
+const checkInResponseSchema = new mongoose.Schema(
   {
     checkInId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'CheckIn',
+      ref: "CheckIn",
       required: true,
     },
     submittedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
+    },
+    answered: {
+      type: Boolean,
+      default: false,
     },
     answers: [answerSchema],
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("QuestionResponse", questionResponseSchema);
+module.exports = mongoose.model("CheckInResponse", checkInResponseSchema);
