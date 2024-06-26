@@ -1,6 +1,8 @@
 const express = require("express");
 const CheckIn = require("../models/CheckIn");
 const validationSchema = require("../util/validationSchema");
+const CheckInResponse = require("../models/CheckInResponse");
+const User = require("../models/User");
 
 const router = express.Router();
 
@@ -85,12 +87,10 @@ router.post("/publishCheckIn", async (req, res) => {
     }
   } catch (error) {
     console.log("error", error);
-    res
-      .status(500)
-      .send({
-        messagae: "An error occured while publishing check-in",
-        error: error,
-      });
+    res.status(500).send({
+      messagae: "An error occured while publishing check-in",
+      error: error,
+    });
   }
 });
 
@@ -102,14 +102,40 @@ router.post("/updateCheckIn", async (req, res) => {
       { questions: checkInToEdit.questions },
       { new: true } // This option ensures the updated document is returned
     ).select("-_id"); // exclude ID;
-    res.status(200).send({ message: "updated check-in successfully", checkIn: result});
-  } catch (error) {
     res
-      .status(500)
-      .send({
-        messagae: "An error occured while updating check-in",
-        error: error,
-      });
+      .status(200)
+      .send({ message: "updated check-in successfully", checkIn: result });
+  } catch (error) {
+    res.status(500).send({
+      messagae: "An error occured while updating check-in",
+      error: error,
+    });
+  }
+});
+
+router.post("/checkInAnayltics", async (req, res) => {
+  try {
+    // i will haave check in id passed
+    const { checkInId } = req.body;
+    const checkIn = await CheckIn.findOne({ checkInId: checkInId });
+
+    if (!checkIn) {
+      return res.status(404).send({ message: "CheckIn not found" });
+    }
+
+    const responsesCaptured = await CheckInResponse.countDocuments({});
+    const questions = await CheckInResponse.find(
+      { checkInId: checkIn._id },
+      { answers: 1, _id: 0 }
+    ).populate("submittedBy", "firstName lastName");
+
+    res.status(200).send({
+      message: "count success",
+      count: responsesCaptured,
+      questions,
+    });
+  } catch (error) {
+    res.status(500).send({ message: "count error", error: error.message });
   }
 });
 
