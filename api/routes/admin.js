@@ -96,7 +96,7 @@ router.post("/publishCheckIn", async (req, res) => {
 
 router.post("/updateCheckIn", async (req, res) => {
   try {
-    const checkInToEdit = req.body;
+    const { checkInToEdit } = req.body;
     const result = await CheckIn.findOneAndUpdate(
       { checkInId: checkInToEdit.checkInId },
       { questions: checkInToEdit.questions },
@@ -108,6 +108,51 @@ router.post("/updateCheckIn", async (req, res) => {
   } catch (error) {
     res.status(500).send({
       messagae: "An error occured while updating check-in",
+      error: error,
+    });
+  }
+});
+
+router.post("/deleteCheckIn", async (req, res) => {
+  try {
+    const { checkInToDelete } = req.body;
+
+    console.log("delete this checkin", checkInToDelete);
+    if (!checkInToDelete) {
+      return res.status(400).send({ message: "checkInId is required" });
+    }
+
+    await CheckIn.findOneAndDelete({ checkInId: checkInToDelete });
+
+    res.status(200).send({ message: "CheckIn deleted successfully" });
+  } catch (error) {
+    res.status(500).send({
+      messagae: "An error occured while deleting check-in",
+      error: error,
+    });
+  }
+});
+
+router.post("/unPublishCheckIn", async (req, res) => {
+  const { checkInToUnpublish } = req.body;
+
+  if (!checkInToUnpublish) {
+    return res.status(400).send({ message: "checkInId is required" });
+  }
+
+  try {
+    const result = await CheckIn.findOneAndUpdate(
+      { published: true },
+      { published: false },
+      { new: true } // This option ensures the updated document is returned
+    ).select("-_id"); // exclude ID;
+
+    res
+      .status(200)
+      .send({ message: "check-in successfully unpublished", checkIn: result });
+  } catch (error) {
+    res.status(500).send({
+      messagae: "An error occured while unpublishing check-in",
       error: error,
     });
   }
