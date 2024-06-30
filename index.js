@@ -4,6 +4,7 @@ const authRoute = require("./api/routes/auth.js");
 const protectedRoute = require("./api/routes/hello.js");
 const adminRoute = require("./api/routes/admin.js");
 const userRoute = require("./api/routes/user.js");
+const chatRoute = require('./api/routes/chat.js');
 const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -50,6 +51,7 @@ mongoose
     app.use("/protected", protectedRoute);
     app.use("/admin", tokenService.verifyToken, adminRoute);
     app.use("/user", tokenService.verifyToken, userRoute);
+    app.use("/chats", tokenService.verifyToken, chatRoute);
 
     app.listen(PORT, () => {
       console.log(`Server is running on port http://localhost:${PORT}`);
