@@ -4,7 +4,7 @@ require("dotenv").config();
 const createToken = (user) => {
   // create new object to which will be used when decoded on front-end
   const userInfo = {
-    id: user._id,
+    id: user._id || user.id, // check for id because on refresh react app passes back id instead of _id
     firstName: user.firstName,
     lastName: user.lastName,
     role: user.role
