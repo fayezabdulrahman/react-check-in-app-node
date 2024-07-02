@@ -1,0 +1,238 @@
+const CheckIn = require("../models/CheckIn");
+const validationSchema = require("../util/validationSchema");
+const CheckInResponse = require("../models/CheckInResponse");
+
+const createCheckIn = async (req, res) => {
+  try {
+    // validate checkIn
+    const checkIn = await validationSchema.checkInValidation.validate(req.body);
+
+    const saveNewCheckIn = new CheckIn({
+      checkInId: checkIn.checkInId,
+      createdBy: checkIn.createdBy,
+      published: checkIn.published,
+      questions: checkIn.questions,
+    });
+
+    // save checkIn to db
+    await saveNewCheckIn.save();
+    res.status(200).send({ message: "Created Check-in succesfully" });
+  } catch (error) {
+    res.status(500).send({ message: error.message, error: error });
+  }
+};
+
+const searchForPublishedCheckIn = async (req, res) => {
+  try {
+    // Query to find the document that has published is true
+    const publishedCheckin = await CheckIn.findOne({ published: true });
+
+    if (publishedCheckin) {
+      res.status(200).send({
+        message: "Published check-in available",
+        checkIn: publishedCheckin,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No published check-in found", checkIn: null });
+    }
+  } catch (error) {
+    res.status(500).send({ message: error.message, error: error });
+  }
+};
+
+const getAllCheckIn = async (req, res) => {
+  try {
+    // query all documents in our CheckIn collection
+    const allCheckin = await CheckIn.find().select("-_id"); // exclude ID
+
+    res.status(200).send({
+      message: "Checks-ins retrieved successfully",
+      checkIns: allCheckin,
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.message, error: error });
+  }
+};
+
+const publishCheckIn = async (req, res) => {
+  try {
+    // get the check-in from the request body
+    const { checkInToPublish } = req.body;
+
+    if (!checkInToPublish) {
+      res.status(400).send({ message: "Check-in is required" });
+    }
+
+    // unpublish previously published check-in
+    await CheckIn.updateMany({ published: true }, { published: false });
+    // publish new check-in selected from admin
+    const result = await CheckIn.findOneAndUpdate(
+      { checkInId: checkInToPublish },
+      { published: true },
+      { new: true } // This option ensures the updated document is returned
+    ).select("-_id"); // exclude ID;
+
+    if (result) {
+      res
+        .status(200)
+        .send({ message: "Check-in published successfully", checkIn: result });
+    } else {
+      res
+        .status(200)
+        .send({ message: "Check-in could not be pubslished", error: result });
+    }
+  } catch (error) {
+    console.log("error", error);
+    res.status(500).send({
+      messagae: "An error occured while publishing check-in",
+      error: error.message,
+    });
+  }
+};
+
+const updateCheckIn = async (req, res) => {
+  try {
+    // get the check-in from the request body
+    const { originalCheckInId, checkInToEdit } = req.body;
+    console.log("checkIntoEdit", checkInToEdit);
+    if (!originalCheckInId || !checkInToEdit) {
+      res
+        .status(400)
+        .send({ message: "Check-in and original check-in ID are required" });
+    }
+
+    // Find the existing check-in using the original ID
+    const existingCheckIn = await CheckIn.findOne({
+      checkInId: originalCheckInId,
+    });
+
+    if (!existingCheckIn) {
+      return res.status(404).send({ message: "Check-in not found" });
+    }
+
+    let result;
+
+    if (existingCheckIn.checkInId === checkInToEdit.checkInId) {
+      result = await CheckIn.findOneAndUpdate(
+        { checkInId: checkInToEdit.checkInId },
+        { questions: checkInToEdit.questions },
+        { new: true } // This option ensures the updated document is returned
+      ).select("-_id"); // exclude ID;
+    } else {
+      result = await CheckIn.findOneAndUpdate(
+        { checkInId: originalCheckInId },
+        { checkInId: checkInToEdit.checkInId, questions: checkInToEdit.questions},
+        { new: true } // This option ensures the updated document is returned
+      ).select("-_id"); // exclude ID;
+    }
+
+    if (result) {
+      res
+        .status(200)
+        .send({ message: "Check-in updated successfully", checkIn: result });
+    } else {
+      res
+        .status(200)
+        .send({ message: "Check-in could not be updated", error: result });
+    }
+  } catch (error) {
+    res.status(500).send({
+      messagae: "An error occured while updating check-in",
+      error: error.message,
+    });
+  }
+};
+
+const deleteCheckIn = async (req, res) => {
+  try {
+    // get the check-in from the request body
+    const { checkInToDelete } = req.body;
+    console.log("delete this checkin", checkInToDelete);
+    if (!checkInToDelete) {
+      return res.status(400).send({ message: "Check-in is required" });
+    }
+
+    await CheckIn.findOneAndDelete({ checkInId: checkInToDelete });
+
+    res.status(200).send({ message: "Check-in Deleted Successfully" });
+  } catch (error) {
+    res.status(500).send({
+      messagae: "An error occured while deleting check-in",
+      error: error,
+    });
+  }
+};
+
+const unPublishCheckIn = async (req, res) => {
+  try {
+    // get the check-in from the request body
+    const { checkInToUnpublish } = req.body;
+
+    if (!checkInToUnpublish) {
+      return res.status(400).send({ message: "Check-in is required" });
+    }
+    const result = await CheckIn.findOneAndUpdate(
+      { published: true },
+      { published: false },
+      { new: true } // This option ensures the updated document is returned
+    ).select("-_id"); // exclude ID;
+
+    if (result) {
+      res.status(200).send({
+        message: "Check-in Unpublished Successfully",
+        checkIn: result,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "Check-in could not be Unpublished", error: result });
+    }
+  } catch (error) {
+    res.status(500).send({
+      messagae: "An error occured while Unpublishing Check-in",
+      error: error,
+    });
+  }
+};
+
+const getCheckInAnalytics = async (req, res) => {
+  try {
+    // i will have check in id passed
+    const { checkInId } = req.body;
+    if (!checkInId) {
+      return res.status(400).send({ message: "Check-in is required" });
+    }
+    const checkIn = await CheckIn.findOne({ checkInId: checkInId });
+
+    if (!checkIn) {
+      return res.status(404).send({ message: "CheckIn not found" });
+    }
+
+    const responsesCaptured = await CheckInResponse.countDocuments({});
+    const questions = await CheckInResponse.find(
+      { checkInId: checkIn._id },
+      { answers: 1, _id: 0 }
+    ).populate("submittedBy", "firstName lastName");
+
+    res.status(200).send({
+      message: "count success",
+      count: responsesCaptured,
+      questions,
+    });
+  } catch (error) {
+    res.status(500).send({ message: "count error", error: error.message });
+  }
+};
+
+module.exports = {
+  createCheckIn,
+  searchForPublishedCheckIn,
+  getAllCheckIn,
+  publishCheckIn,
+  updateCheckIn,
+  deleteCheckIn,
+  unPublishCheckIn,
+  getCheckInAnalytics,
+};
