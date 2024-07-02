@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 
 const questionSchema = new mongoose.Schema(
   {
+    id: {
+      type: Number
+    },
     label: {
       type: String,
       required: true,
