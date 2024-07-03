@@ -1,7 +1,5 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const authRoute = require("./api/routes/auth.js");
-const protectedRoute = require("./api/routes/hello.js");
 const adminRoute = require("./api/routes/admin.js");
 const userRoute = require("./api/routes/user.js");
 const chatRoute = require("./api/routes/chat.js");
