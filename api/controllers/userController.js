@@ -3,7 +3,6 @@ const CheckIn = require("../models/CheckIn");
 const CheckInResponse = require("../models/CheckInResponse");
 const submitCheckIn = async (req, res) => {
   try {
-    console.log("request", req.body);
     const { checkInId, submittedBy, answers } = req.body;
 
     const firstName = submittedBy.split(" ")[0];
@@ -52,15 +51,19 @@ const getAnsweredCheckIn = async (req, res) => {
       return res.status(400).send({ message: "User id is null or undefined" });
     }
 
-    // Find the user by firstName and lastName
+    // Find the user
     const user = await User.findOne({ _id: userId });
 
     if (!user) {
       return res.status(404).send({ message: "User not found " });
     }
 
+    // Find the currently published check-in
+    const publishedCheckIn = await CheckIn.findOne({ published: true });
+
     const existingCheckIn = await CheckInResponse.findOne({
       submittedBy: user._id,
+      checkInId: publishedCheckIn._id,
       answered: true,
     });
     res.status(200).send({

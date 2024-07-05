@@ -210,15 +210,18 @@ const getCheckInAnalytics = async (req, res) => {
       return res.status(404).send({ message: "CheckIn not found" });
     }
 
-    const responsesCaptured = await CheckInResponse.countDocuments({});
+    // Count the number of unique users who submitted responses for the specific CheckIn
+    //It uses distinct to get the unique submittedBy user IDs for responses to the specific CheckIn and counts them.
+    const uniqueUserResponsesCount = await CheckInResponse.distinct("submittedBy", { checkInId: checkIn._id });
+
     const questions = await CheckInResponse.find(
       { checkInId: checkIn._id },
       { answers: 1, _id: 0 }
     ).populate("submittedBy", "firstName lastName");
 
     res.status(200).send({
-      message: "count success",
-      count: responsesCaptured,
+      message: "Check-in anayltics results successful",
+      count: uniqueUserResponsesCount.length,
       questions,
     });
   } catch (error) {
