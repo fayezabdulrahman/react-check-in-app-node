@@ -12,7 +12,6 @@ const db = require("../react-check-in-app-node/api/db/connectToDb");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 7000;
-const MONGO_URL = process.env.MONGO_URL || "";
 
 // apply middleware to api
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -35,5 +34,5 @@ app.use("/chats", tokenService.verifyToken, chatRoute);
 // run application
 app.listen(PORT, () => {
   db.connectToMongoDb();
-  console.log(`Server is running on port http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

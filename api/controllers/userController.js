@@ -78,7 +78,39 @@ const getAnsweredCheckIn = async (req, res) => {
   }
 };
 
+const getAllSubmittedCheckIns = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    if (!userId) {
+      return res.status(400).send({ message: "User id is null or undefined" });
+    }
+  
+    // Find the user
+    const user = await User.findOne({ _id: userId });
+  
+    if (!user) {
+      return res.status(404).send({ message: "User not found " });
+    }
+
+    const allSubmittedCheckIns = await CheckInResponse.find({ submittedBy: userId })
+    .select("createdAt checkInId")
+    .populate("checkInId", "-_id -createdBy -published -questions -__v");
+
+    res.status(200).send({
+      submittedCheckIns: allSubmittedCheckIns,
+    });
+  } catch (error) {
+    res.status(500).send({
+      error: error.message,
+      message: "Error retrieving your submitted check-ins",
+    });
+  }
+
+};
+
 module.exports = {
   getAnsweredCheckIn,
   submitCheckIn,
+  getAllSubmittedCheckIns
 };
