@@ -1,12 +1,14 @@
 const CheckIn = require("../models/CheckIn");
 const validationSchema = require("../util/validationSchema");
 const CheckInResponse = require("../models/CheckInResponse");
+const logger = require('../logger/logger');
 
 const createCheckIn = async (req, res) => {
   try {
     // validate checkIn
     const checkIn = await validationSchema.checkInValidation.validate(req.body);
 
+    logger.info("Creating checkIn ", checkIn);
     const saveNewCheckIn = new CheckIn({
       checkInId: checkIn.checkInId,
       createdBy: checkIn.createdBy,
@@ -47,6 +49,8 @@ const getAllCheckIn = async (req, res) => {
     // query all documents in our CheckIn collection
     const allCheckin = await CheckIn.find().select("-_id"); // exclude ID
 
+    logger.info("Retreving all check-ins");
+
     res.status(200).send({
       message: "Checks-ins retrieved successfully",
       checkIns: allCheckin,
@@ -65,9 +69,12 @@ const publishCheckIn = async (req, res) => {
       res.status(400).send({ message: "Check-in is required" });
     }
 
+    logger.info("Unpublishing previously published check-in");
     // unpublish previously published check-in
     await CheckIn.updateMany({ published: true }, { published: false });
+
     // publish new check-in selected from admin
+    logger.info("Publishing selected Check-in ", checkInToPublish);
     const result = await CheckIn.findOneAndUpdate(
       { checkInId: checkInToPublish },
       { published: true },
@@ -96,7 +103,7 @@ const updateCheckIn = async (req, res) => {
   try {
     // get the check-in from the request body
     const { originalCheckInId, checkInToEdit } = req.body;
-    console.log("checkIntoEdit", checkInToEdit);
+    logger.info("checkIntoEdit", checkInToEdit);
     if (!originalCheckInId || !checkInToEdit) {
       res
         .status(400)
@@ -149,7 +156,7 @@ const deleteCheckIn = async (req, res) => {
   try {
     // get the check-in from the request body
     const { checkInToDelete } = req.body;
-    console.log("delete this checkin", checkInToDelete);
+    logger.info("Deleting the following check-in ", checkInToDelete);
     if (!checkInToDelete) {
       return res.status(400).send({ message: "Check-in is required" });
     }
@@ -173,6 +180,8 @@ const unPublishCheckIn = async (req, res) => {
     if (!checkInToUnpublish) {
       return res.status(400).send({ message: "Check-in is required" });
     }
+
+    logger.info("Unpublishing check-in ", checkInToUnpublish);
     const result = await CheckIn.findOneAndUpdate(
       { published: true },
       { published: false },

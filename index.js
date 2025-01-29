@@ -9,9 +9,10 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const tokenService = require("./api/services/auth-token-service.js");
 const db = require("../react-check-in-app-node/api/db/connectToDb");
+const logger = require('./api/logger/logger.js');
 require("dotenv").config();
 
-const PORT = process.env.PORT || 7000;
+const PORT = process.env.PORT || 9000;
 
 // apply middleware to api
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -34,5 +35,5 @@ app.use("/chats", tokenService.verifyToken, chatRoute);
 // run application
 app.listen(PORT, () => {
   db.connectToMongoDb();
-  console.log(`Server is running on port ${PORT}`);
+  logger.info(`Server is running on port ${PORT}`);
 });
