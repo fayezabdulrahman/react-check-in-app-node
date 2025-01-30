@@ -3,6 +3,7 @@ const authRoute = require("./api/routes/auth.js");
 const adminRoute = require("./api/routes/admin.js");
 const userRoute = require("./api/routes/user.js");
 const chatRoute = require("./api/routes/chat.js");
+const healthRoute = require("./api/routes/health.js");
 const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -13,6 +14,7 @@ const logger = require('./api/logger/logger.js');
 require("dotenv").config();
 
 const PORT = process.env.PORT || 9000;
+const SERVER_PREFIX = '/api'
 
 // apply middleware to api
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -27,10 +29,11 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // apply our app routes
-app.use("/auth", authRoute);
-app.use("/admin", tokenService.verifyToken, adminRoute);
-app.use("/user", tokenService.verifyToken, userRoute);
-app.use("/chats", tokenService.verifyToken, chatRoute);
+app.use(`${SERVER_PREFIX}/auth`, authRoute);
+app.use(`${SERVER_PREFIX}/admin`, tokenService.verifyToken, adminRoute);
+app.use(`${SERVER_PREFIX}/user`, tokenService.verifyToken, userRoute);
+app.use(`${SERVER_PREFIX}/chats`, tokenService.verifyToken, chatRoute);
+app.use(`${SERVER_PREFIX}`, healthRoute);
 
 // run application
 app.listen(PORT, () => {
