@@ -28,4 +28,4 @@ jobs:
     - run: |
         touch .env
         echo "${{ secrets.PROD_ENV_FILE }}" > .env
-    - run: pm2 restart NodeJsAPI
+    # - run: pm2 restart node-app-check-in
