@@ -2,7 +2,6 @@ const express = require("express");
 const authRoute = require("./api/routes/auth.js");
 const adminRoute = require("./api/routes/admin.js");
 const userRoute = require("./api/routes/user.js");
-const chatRoute = require("./api/routes/chat.js");
 const healthRoute = require("./api/routes/health.js");
 const app = express();
 const cors = require("cors");
@@ -32,7 +31,6 @@ app.use(cors(corsOptions));
 app.use(`${SERVER_PREFIX}/auth`, authRoute);
 app.use(`${SERVER_PREFIX}/admin`, tokenService.verifyToken, adminRoute);
 app.use(`${SERVER_PREFIX}/user`, tokenService.verifyToken, userRoute);
-app.use(`${SERVER_PREFIX}/chats`, tokenService.verifyToken, chatRoute);
 app.use(`${SERVER_PREFIX}`, healthRoute);
 
 // run application
