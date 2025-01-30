@@ -18,14 +18,18 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout source code
+      uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm install
-    - run: |
+    - name: Install Dependencies
+      run: npm install
+    - name: Copy PROD Env file
+      run: |
         touch .env
         echo "${{ secrets.PROD_ENV_FILE }}" > .env
-    # - run: pm2 restart node-app-check-in
+    - name: Deploy Node app
+      run: pm2 restart node-app-check-in
