@@ -8,7 +8,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const tokenService = require("./api/services/auth-token-service.js");
-const db = require("../react-check-in-app-node/api/db/connectToDb");
+const db = require("./api/db/connectToDb");
 const logger = require('./api/logger/logger.js');
 require("dotenv").config();
 
