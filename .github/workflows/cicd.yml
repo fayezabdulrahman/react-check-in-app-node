@@ -1,0 +1,38 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Build & Deploy Check-in Node CI/CD
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Build Docker Image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app .
+      - name: Push Docker Image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app:latest
+
+  deploy:
+      needs: build
+      runs-on: self-hosted # runs on aws-ec2
+      steps:
+        - name: Mount Secrets file
+          run: echo "${{ secrets.PROD_ENV_FILE }}" > .env
+        - name: Pull Docker Image
+          run: docker pull ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app:latest
+        - name: Delete old container
+          run: docker rm -f ez-check-in-node-app
+        - name: Run Docker Container
+          run: |
+          docker run -d -p 9000:9000 \
+          --name ez-check-in-node-app \
+          --env-file .env \
+          ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app

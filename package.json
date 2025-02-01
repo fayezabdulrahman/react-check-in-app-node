@@ -4,7 +4,8 @@
   "description": "Node JS application that will serve API Routes and connect to the Mongo DB instance",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon index.js",
+    "prod": "node index.js"
   },
   "keywords": [],
   "author": "",
