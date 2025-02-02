@@ -35,6 +35,6 @@ app.use(`${SERVER_PREFIX}`, healthRoute);
 
 // run application
 app.listen(PORT, () => {
-  db.connectToMongoDb();
+  // db.connectToMongoDb();
   logger.info(`Server is running on port ${PORT}`);
 });

@@ -25,9 +25,7 @@ jobs:
       runs-on: self-hosted # runs on aws-ec2
       steps:
         - name: Mount Secrets file
-          run: |
-            touch .env
-            echo "${{ secrets.PROD_ENV_FILE }}" > .env
+          run: echo "${{ secrets.PROD_ENV_FILE }}" > .env
         - name: Pull Docker Image
           run: docker pull ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app:latest
         - name: Delete old container
