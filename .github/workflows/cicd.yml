@@ -32,7 +32,7 @@ jobs:
           run: docker rm -f ez-check-in-node-app
         - name: Run Docker Container
           run: |
-            docker run -d -p 9000:9000 \
+            docker run -d --network ezcheckin-network -p 9000:9000 \
             --name ez-check-in-node-app \
             --env-file .env \
             ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app
