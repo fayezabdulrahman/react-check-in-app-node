@@ -24,8 +24,8 @@ jobs:
       needs: build
       runs-on: self-hosted # runs on aws-ec2
       steps:
-        - name: Mount Secrets file
-          run: echo "${{ secrets.PROD_ENV_FILE }}" > ~/env_file
+        - name: Export Environment Variables
+          run: echo "${{ secrets.PROD_ENV_FILE }}" | tr '\n' ' ' | sed 's/ /=/g' > env_vars.sh
         - name: Pull Docker Image
           run: docker pull ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app:latest
         - name: Delete old container
@@ -34,5 +34,5 @@ jobs:
           run: |
             docker run -d --network ezcheckin-network -p 9000:9000 \
             --name ez-check-in-node-app \
-            --env-file ~/env_file \
+            $(cat env_vars.sh | xargs -n1 echo -e) \ 
             ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app
