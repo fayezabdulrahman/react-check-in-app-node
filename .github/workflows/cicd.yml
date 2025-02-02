@@ -17,10 +17,10 @@ jobs:
         run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
       - name: Build Docker Image
         run: |
-          docker build --build-arg PORT=$(echo "${{ secrets.PROD_ENV_FILE }}" | grep "PORT" | cut -d '=' -f 2) /
-          --build-arg TOKEN_SECRET_KEY=$(echo "${{ secrets.PROD_ENV_FILE }}" | grep "TOKEN_SECRET_KEY" | cut -d '=' -f 2) /
-          --build-arg REFRESH_TOKEN_SECRET_KEY=$(echo "${{ secrets.PROD_ENV_FILE }}" | grep "REFRESH_TOKEN_SECRET_KEY" | cut -d '=' -f 2) /
-          --build-arg MONGO_URL=$(echo "${{ secrets.PROD_ENV_FILE }}" | grep "MONGO_URL" | cut -d '=' -f 2) /
+          docker build --build-arg PORT=$(echo "${{ secrets.PROD_ENV_FILE }}" | grep "PORT" | cut -d '=' -f 2) \
+          --build-arg TOKEN_SECRET_KEY=$(echo "${{ secrets.PROD_ENV_FILE }}" | grep "TOKEN_SECRET_KEY" | cut -d '=' -f 2) \
+          --build-arg REFRESH_TOKEN_SECRET_KEY=$(echo "${{ secrets.PROD_ENV_FILE }}" | grep "REFRESH_TOKEN_SECRET_KEY" | cut -d '=' -f 2) \
+          --build-arg MONGO_URL=$(echo "${{ secrets.PROD_ENV_FILE }}" | grep "MONGO_URL" | cut -d '=' -f 2) \
           -t ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app .
       - name: Push Docker Image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app:latest
