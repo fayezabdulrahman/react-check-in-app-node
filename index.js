@@ -14,6 +14,7 @@ require("dotenv").config();
 
 const PORT = process.env.PORT || 9000;
 const SERVER_PREFIX = '/api'
+const corsOriginUrl = process.env.URL || 'http://localhost:9000';
 
 // apply middleware to api
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -22,7 +23,7 @@ app.use(cookieParser());
 
 // allow CORS
 const corsOptions = {
-  origin: "https://ezcheckin.app",
+  origin: corsOriginUrl,
   credentials: true,
 };
 app.use(cors(corsOptions));
