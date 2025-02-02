@@ -25,7 +25,7 @@ jobs:
       runs-on: self-hosted # runs on aws-ec2
       steps:
         - name: Export Environment Variables
-          run: echo "${{ secrets.PROD_ENV_FILE }}" | tr '\n' ' ' | sed 's/ /=/g' > env_vars.sh
+          run: echo "${{ secrets.PROD_ENV_FILE }}" | awk '{print "-e " $0}' > env_vars.txt
         - name: Pull Docker Image
           run: docker pull ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app:latest
         - name: Delete old container
@@ -34,5 +34,5 @@ jobs:
           run: |
             docker run -d --network ezcheckin-network -p 9000:9000 \
             --name ez-check-in-node-app \
-            $(cat env_vars.sh | xargs -n1 echo -e) \ 
+            $(cat env_vars.txt) \
             ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app
