@@ -22,7 +22,7 @@ app.use(cookieParser());
 
 // allow CORS
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "https://ezcheckin.app",
   credentials: true,
 };
 app.use(cors(corsOptions));
