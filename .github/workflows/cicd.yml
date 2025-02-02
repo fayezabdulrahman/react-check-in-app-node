@@ -15,8 +15,10 @@ jobs:
         uses: actions/checkout@v4
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Export Environment Variables
+        run: echo "${{ secrets.PROD_ENV_FILE }}" | awk '{print "--build-arg " $0}' > build_args.txt
       - name: Build Docker Image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app .
+        run: docker build $(cat build_args.txt) -t ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app .
       - name: Push Docker Image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app:latest
 
@@ -24,8 +26,6 @@ jobs:
       needs: build
       runs-on: self-hosted # runs on aws-ec2
       steps:
-        - name: Export Environment Variables
-          run: echo "${{ secrets.PROD_ENV_FILE }}" | awk '{print "-e " $0}' > env_vars.txt
         - name: Pull Docker Image
           run: docker pull ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app:latest
         - name: Delete old container
@@ -34,5 +34,4 @@ jobs:
           run: |
             docker run -d --network ezcheckin-network -p 9000:9000 \
             --name ez-check-in-node-app \
-            $(cat env_vars.txt) \
             ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app

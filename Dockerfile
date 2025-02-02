@@ -1,4 +1,17 @@
 FROM node:18-alpine AS build
+
+# Build Args for Environment Variables
+ARG PORT
+ARG MONGO_URL
+ARG TOKEN_SECRET_KEY
+ARG REFRESH_TOKEN_SECRET_KEY
+
+# Set as Environment Variables in Container
+ENV PORT=$PORT
+ENV TOKEN_SECRET_KEY=$TOKEN_SECRET_KEY
+ENV REFRESH_TOKEN_SECRET_KEY=$REFRESH_TOKEN_SECRET_KEY
+ENV MONGO_URL=$MONGO_URL
+
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
