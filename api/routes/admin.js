@@ -6,7 +6,7 @@ const router = express.Router();
 // handle post request for creating a check-in
 router.post("/createCheckin", adminController.createCheckIn);
 
-// handke post request for retrieving published check-in
+// handle post request for retrieving published check-in
 router.get("/publishedCheckin", adminController.searchForPublishedCheckIn);
 
 // handle get request to retrieve all check-ins

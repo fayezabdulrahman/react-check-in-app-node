@@ -61,6 +61,10 @@ const getAnsweredCheckIn = async (req, res) => {
     // Find the currently published check-in
     const publishedCheckIn = await CheckIn.findOne({ published: true });
 
+    if (!publishedCheckIn) {
+      return res.status(200).send({ message: "No Published Check-ins found", checkIn: null  });
+    }
+
     const existingCheckIn = await CheckInResponse.findOne({
       submittedBy: user._id,
       checkInId: publishedCheckIn._id,
