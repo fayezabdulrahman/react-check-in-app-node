@@ -61,6 +61,10 @@ const getAnsweredCheckIn = async (req, res) => {
     // Find the currently published check-in
     const publishedCheckIn = await CheckIn.findOne({ published: true });
 
+    if (!publishedCheckIn) {
+      return res.status(200).send({ message: "No Published Check-ins found", checkIn: null  });
+    }
+
     const existingCheckIn = await CheckInResponse.findOne({
       submittedBy: user._id,
       checkInId: publishedCheckIn._id,
@@ -97,8 +101,16 @@ const getAllSubmittedCheckIns = async (req, res) => {
     .select("createdAt checkInId")
     .populate("checkInId", "-_id -createdBy -published -questions -__v");
 
+    // Transform the response to match the desired structure
+    const transformedCheckIns = allSubmittedCheckIns.map((checkIn) => ({
+      _id: checkIn._id,
+      data: { checkInId: checkIn.checkInId.checkInId },
+      createdAt: checkIn.createdAt,
+    }));
+
+
     res.status(200).send({
-      submittedCheckIns: allSubmittedCheckIns,
+      submittedCheckIns: transformedCheckIns,
     });
   } catch (error) {
     res.status(500).send({
