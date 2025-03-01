@@ -70,8 +70,16 @@ const getAnsweredCheckIn = async (req, res) => {
       checkInId: publishedCheckIn._id,
       answered: true,
     });
+
+    let message;
+
+    if (!existingCheckIn) {
+      message = "Check-in available to submit";
+    } else {
+      message = "You already have submitted the latest checkIn";
+    }
     res.status(200).send({
-      message: "You already have submitted the latest checkIn",
+      message: message,
       existingCheckIn: existingCheckIn,
     });
   } catch (error) {
