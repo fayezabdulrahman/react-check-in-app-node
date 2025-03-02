@@ -10,7 +10,6 @@ const answerSchema = new mongoose.Schema(
     },
     answer: {
       type: String,
-      required: true,
     },
   },
   { _id: false }
