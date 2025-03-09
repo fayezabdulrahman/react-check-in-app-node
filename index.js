@@ -29,7 +29,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // apply our app routes
-app.use(`${SERVER_PREFIX}/auth`, authRoute);
+app.use(`${SERVER_PREFIX}/auth`, auth0TokenService.verifyToken, authRoute);
 
 app.use(`${SERVER_PREFIX}/admin`, auth0TokenService.verifyToken, adminRoute);
 app.use(`${SERVER_PREFIX}/user`, auth0TokenService.verifyToken, auth0TokenService.validateUser, userRoute);
