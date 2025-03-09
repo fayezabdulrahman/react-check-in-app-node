@@ -7,7 +7,7 @@ const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
-const tokenService = require("./api/services/auth-token-service.js");
+const auth0TokenService = require("./api/services/auth0-service.js");
 const db = require("./api/db/connectToDb");
 const logger = require('./api/logger/logger.js');
 require("dotenv").config();
@@ -30,8 +30,11 @@ app.use(cors(corsOptions));
 
 // apply our app routes
 app.use(`${SERVER_PREFIX}/auth`, authRoute);
-app.use(`${SERVER_PREFIX}/admin`, tokenService.verifyToken, adminRoute);
-app.use(`${SERVER_PREFIX}/user`, tokenService.verifyToken, userRoute);
+
+app.use(`${SERVER_PREFIX}/admin`, auth0TokenService.verifyToken, adminRoute);
+app.use(`${SERVER_PREFIX}/user`, auth0TokenService.verifyToken, auth0TokenService.validateUser, userRoute);
+
+// non protected route
 app.use(`${SERVER_PREFIX}`, healthRoute);
 
 // run application

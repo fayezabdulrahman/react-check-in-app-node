@@ -1,9 +1,8 @@
 const validationSchema = require("../util/validationSchema");
 const User = require("../models/User");
-const tokenService = require("../services/auth-token-service");
+const tokenService = require("../../archive/auth-token-service");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
 
 const registerUser = async (req, res) => {
   try {
@@ -14,18 +13,20 @@ const registerUser = async (req, res) => {
 
     if (userExists) return res.status(409).send("Email is already registered!");
 
-    const hashedPass = await bcrypt.hash(user.password, 10);
+    // const hashedPass = await bcrypt.hash(user.password, 10);
 
     const saveNewUser = new User({
       email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      password: hashedPass,
+      username: user.username,
+      auth0Id: user.auth0Id,
+      roles: user.roles,
     });
 
     // save user to db
-    await saveNewUser.save();
-    return res.status(201).send("User registered successfully!");
+    const savedUser = await saveNewUser.save();
+    return res
+      .status(201)
+      .send({ message: "User registered successfully!", user: savedUser });
   } catch (error) {
     return res
       .status(500)
@@ -33,82 +34,45 @@ const registerUser = async (req, res) => {
   }
 };
 
-const loginUser = async (req, res) => {
+const fetchUser = async (req, res) => {
   try {
-    const payload = await validationSchema.loginValidation.validate(req.body);
-    const response = await User.findOne({ email: payload.email }).exec();
-    const user = JSON.parse(JSON.stringify(response));
+    const { auth0Id, roles } = req.body;
+    if (!auth0Id) {
+      return res
+        .status(400)
+        .json({ message: "Auth0 ID is required to Find User" });
+    }
 
-    if (!user)
-      return res.status(422).send({ message: "Invalid email provided." });
+    console.log("roles ", roles);
 
-    const isValidPass = await bcrypt.compare(payload.password, user.password);
+    const user = await User.findOne({ auth0Id }).exec();
 
-    if (!isValidPass)
-      return res.status(422).send({ message: "Invalid password entered." });
+    if (!user) {
+      return res.status(404).json({ message: "User not found in DB" });
+    }
 
-    const token = tokenService.createToken(user);
+    // Compare the roles arrays using JSON.stringify
+    if (JSON.stringify(user.roles) !== JSON.stringify(roles)) {
+      const updateUserDetails = await User.findOneAndUpdate(
+        { auth0Id: auth0Id },
+        { roles: roles },
+        { new: true }
+      );
 
-    const refreshToken = tokenService.createRefreshToken(user);
-
-    res.cookie("refreshToken", refreshToken, { httpOnly: true, path: "/" });
-
-    res.status(200).send({ token, message: "Login Successful" });
+      console.log("updated user details ", updateUserDetails);
+      return res.status(200).json(updateUserDetails);
+    } else {
+      console.log("Nothing to update , return user as is");
+      res.status(200).json(user);
+    }
   } catch (error) {
     return res
       .status(500)
-      .send({ message: "Failed to Login User", error: error.message });
-  }
-};
-
-const logoutUser = async (req, res) => {
-  res.clearCookie("refreshToken", { httpOnly: true, path: "/" });
-
-  res.status(200).send({ message: "Logout successful" });
-};
-
-const whoAmI = async (req, res) => {
-  try {
-    res.status(200).send({ message: "authenticated" });
-  } catch (error) {
-    res.status(401).send({ message: "unauthenticated" });
-  }
-};
-
-const refreshUserToken = async (req, res) => {
-  const { refreshToken } = req.cookies;
-
-  try {
-    if (!refreshToken)
-      return res.status(403).send({ message: "Unauthorised!" });
-
-    jwt.verify(
-      refreshToken,
-      process.env.REFRESH_TOKEN_SECRET_KEY,
-      (err, user) => {
-        if (err) {
-          return res.status(400).send({ message: "Refresh Token Expired" });
-        }
-
-        const userObj = JSON.parse(JSON.stringify(user));
-
-        const token = tokenService.createToken(userObj);
-        res
-          .status(200)
-          .send({ token, message: "Token Refreshed Successfully" });
-      }
-    );
-  } catch (error) {
-    return res
-      .status(500)
-      .send({ message: "Failed to Refresh Token", error: error.message });
+      .send({ message: "Internal Server Error", error: error.message });
   }
 };
 
 module.exports = {
   registerUser,
-  loginUser,
-  logoutUser,
-  whoAmI,
-  refreshUserToken,
+  fetchUser,
 };
