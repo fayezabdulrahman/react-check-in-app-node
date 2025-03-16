@@ -3,19 +3,8 @@ const CheckIn = require("../models/CheckIn");
 const CheckInResponse = require("../models/CheckInResponse");
 const submitCheckIn = async (req, res) => {
   try {
-    const { checkInId, submittedBy, answers } = req.body;
-
-    const firstName = submittedBy.split(" ")[0];
-    const lastName = submittedBy.split(" ")[1];
-
-    // Find the user by username
-    const user = await User.findOne({
-      firstName: firstName,
-      lastName: lastName,
-    });
-    if (!user) {
-      return res.status(404).send({ message: "User not found" });
-    }
+    const { checkInId, answers } = req.body;
+    const userInRequest = req.user;
 
     // Find the check-in by ID
     const checkIn = await CheckIn.findOne({ checkInId: checkInId });
@@ -25,7 +14,7 @@ const submitCheckIn = async (req, res) => {
 
     const newCheckInResponse = new CheckInResponse({
       checkInId: checkIn,
-      submittedBy: user,
+      submittedBy: userInRequest,
       answers: answers,
       answered: true,
     });
@@ -45,29 +34,30 @@ const submitCheckIn = async (req, res) => {
 
 const getAnsweredCheckIn = async (req, res) => {
   try {
-    const userId = req.user.id;
-
-    if (!userId) {
-      return res.status(400).send({ message: "User id is null or undefined" });
-    }
-
-    // Find the user
-    const user = await User.findOne({ _id: userId });
-
-    if (!user) {
-      return res.status(404).send({ message: "User not found " });
-    }
+    const userInRequest = req.user;
 
     // Find the currently published check-in
     const publishedCheckIn = await CheckIn.findOne({ published: true });
 
+    if (!publishedCheckIn) {
+      return res.status(200).send({ message: "No Published Check-ins found", checkIn: null  });
+    }
+
     const existingCheckIn = await CheckInResponse.findOne({
-      submittedBy: user._id,
+      submittedBy: userInRequest._id,
       checkInId: publishedCheckIn._id,
       answered: true,
     });
+
+    let message;
+
+    if (!existingCheckIn) {
+      message = "Check-in available to submit";
+    } else {
+      message = "You already have submitted the latest checkIn";
+    }
     res.status(200).send({
-      message: "You already have submitted the latest checkIn",
+      message: message,
       existingCheckIn: existingCheckIn,
     });
   } catch (error) {
@@ -80,25 +70,22 @@ const getAnsweredCheckIn = async (req, res) => {
 
 const getAllSubmittedCheckIns = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userInRequest = req.user;
 
-    if (!userId) {
-      return res.status(400).send({ message: "User id is null or undefined" });
-    }
-  
-    // Find the user
-    const user = await User.findOne({ _id: userId });
-  
-    if (!user) {
-      return res.status(404).send({ message: "User not found " });
-    }
-
-    const allSubmittedCheckIns = await CheckInResponse.find({ submittedBy: userId })
+    const allSubmittedCheckIns = await CheckInResponse.find({ submittedBy: userInRequest._id })
     .select("createdAt checkInId")
     .populate("checkInId", "-_id -createdBy -published -questions -__v");
 
+    // Transform the response to match the desired structure
+    const transformedCheckIns = allSubmittedCheckIns.map((checkIn) => ({
+      _id: checkIn._id,
+      data: { checkInId: checkIn.checkInId.checkInId },
+      createdAt: checkIn.createdAt,
+    }));
+
+
     res.status(200).send({
-      submittedCheckIns: allSubmittedCheckIns,
+      submittedCheckIns: transformedCheckIns,
     });
   } catch (error) {
     res.status(500).send({

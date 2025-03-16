@@ -4,12 +4,8 @@ const registrationValidation = yup.object({
     .string()
     .required("Email is required")
     .email("Invalid email address"),
-  firstName: yup.string().required("First name is required"),
-  lastName: yup.string().required("Surname is required"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(3, "Password must be greater than 3 characters."),
+  username: yup.string(),
+  auth0Id: yup.string()
 });
 
 const loginValidation = yup.object({

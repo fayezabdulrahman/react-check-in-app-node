@@ -29,6 +29,8 @@ const searchForPublishedCheckIn = async (req, res) => {
     // Query to find the document that has published is true
     const publishedCheckin = await CheckIn.findOne({ published: true });
 
+    console.log('published check in from backend ', publishedCheckin);
+
     if (publishedCheckin) {
       res.status(200).send({
         message: "Published check-in available",
@@ -188,6 +190,8 @@ const unPublishCheckIn = async (req, res) => {
       { new: true } // This option ensures the updated document is returned
     ).select("-_id"); // exclude ID;
 
+    console.log('result of unpublishing check-in ', result);
+
     if (result) {
       res.status(200).send({
         message: "Check-in Unpublished Successfully",
@@ -239,6 +243,8 @@ const getCheckInAnalytics = async (req, res) => {
       { checkInId: checkIn._id },
       { answers: 1, _id: 0 }
     ).populate("submittedBy", "firstName lastName -_id");
+
+    console.log('responses ', responses);
 
     res.status(200).send({
       message: "Check-in anayltics results successful",

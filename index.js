@@ -7,14 +7,14 @@ const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
-const tokenService = require("./api/services/auth-token-service.js");
+const auth0TokenService = require("./api/services/auth0-service.js");
 const db = require("./api/db/connectToDb");
 const logger = require('./api/logger/logger.js');
 require("dotenv").config();
 
 const PORT = process.env.PORT || 9000;
 const SERVER_PREFIX = '/api'
-const corsOriginUrl = process.env.URL || 'http://localhost:9000';
+const corsOriginUrl = process.env.CORS_ORIGIN_URL || 'http://localhost:3000';
 
 // apply middleware to api
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -29,9 +29,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // apply our app routes
-app.use(`${SERVER_PREFIX}/auth`, authRoute);
-app.use(`${SERVER_PREFIX}/admin`, tokenService.verifyToken, adminRoute);
-app.use(`${SERVER_PREFIX}/user`, tokenService.verifyToken, userRoute);
+app.use(`${SERVER_PREFIX}/auth`, auth0TokenService.verifyToken, authRoute);
+
+app.use(`${SERVER_PREFIX}/admin`, auth0TokenService.verifyToken, adminRoute);
+app.use(`${SERVER_PREFIX}/user`, auth0TokenService.verifyToken, auth0TokenService.validateUser, userRoute);
+
+// non protected route
 app.use(`${SERVER_PREFIX}`, healthRoute);
 
 // run application
