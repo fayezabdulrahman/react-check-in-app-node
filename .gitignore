@@ -38,6 +38,7 @@ Thumbs.db
 
 # dot env
 .env
+.env.production
 
 # vs code
 .vscode

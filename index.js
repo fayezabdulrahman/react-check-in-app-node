@@ -14,7 +14,7 @@ require("dotenv").config();
 
 const PORT = process.env.PORT || 9000;
 const SERVER_PREFIX = '/api'
-const corsOriginUrl = process.env.URL || 'http://localhost:3000';
+const corsOriginUrl = process.env.CORS_ORIGIN_URL || 'http://localhost:3000';
 
 // apply middleware to api
 app.use(bodyParser.urlencoded({ extended: false }));
