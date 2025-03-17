@@ -5,10 +5,15 @@ Welcome to the React Check-In App - Node API! This is the backend service that p
 📌 Features
 
 ✅ RESTful API for seamless integration with the frontend.
+
 ✅ User Check-Ins - Users can create and retrieve their check-ins.
+
 ✅ Admin Controls - Admins can manage check-ins (create, update, delete, publish, unpublish) and retrieve analytical data.
+
 ✅ Authentication & Authorization using Auth0.
+
 ✅ MongoDB Atlas for scalable and reliable data storage.
+
 ✅ Secure API Calls with Auth0 token validation.
 
 📡 API Endpoints
@@ -103,3 +108,5 @@ We welcome contributions! Feel free to fork the repo and submit pull requests.
 📜 License
 
 This project is licensed under the MIT License.
+
+Happy coding! 🚀
