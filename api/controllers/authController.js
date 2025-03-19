@@ -15,6 +15,8 @@ const registerUser = async (req, res) => {
       username: user.username,
       auth0Id: user.auth0Id,
       roles: user.roles,
+      firstName: "",
+      lastName: "",
     });
 
     // save user to db
@@ -63,7 +65,32 @@ const fetchUser = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  try {
+    const { firstName, lastName } = req.body;
+    console.log('first name ', firstName);
+    console.log('last name ', lastName);
+
+    const user = req.user;
+
+    console.log('user ', user)
+
+    const updateUserDetails = await User.findOneAndUpdate(
+      { auth0Id: user.auth0Id },
+      { firstName: firstName, lastName: lastName },
+      { new: true }
+    );
+
+    return res.status(200).json(updateUserDetails);
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: "Internal Server Error", error: error.message });
+  }
+};
+
 module.exports = {
   registerUser,
   fetchUser,
+  updateUser,
 };
