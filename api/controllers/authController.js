@@ -68,12 +68,8 @@ const fetchUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { firstName, lastName } = req.body;
-    console.log('first name ', firstName);
-    console.log('last name ', lastName);
 
     const user = req.user;
-
-    console.log('user ', user)
 
     const updateUserDetails = await User.findOneAndUpdate(
       { auth0Id: user.auth0Id },
