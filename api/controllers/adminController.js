@@ -8,7 +8,7 @@ const createCheckIn = async (req, res) => {
     // validate checkIn
     const checkIn = await validationSchema.checkInValidation.validate(req.body);
 
-    logger.info("Creating checkIn ", checkIn);
+    logger.info(`Creating checkIn  ${JSON.stringify(checkIn)}`);
     const saveNewCheckIn = new CheckIn({
       checkInId: checkIn.checkInId,
       createdBy: checkIn.createdBy,
@@ -213,7 +213,9 @@ const unPublishCheckIn = async (req, res) => {
 const getCheckInAnalytics = async (req, res) => {
   try {
     // i will have check in id passed
-    const { checkInId } = req.body;
+    const { checkInId } = req.query;
+    
+    console.log('checkInId to get analytics for ', checkInId);
     if (!checkInId) {
       return res.status(400).send({ message: "Check-in is required" });
     }
