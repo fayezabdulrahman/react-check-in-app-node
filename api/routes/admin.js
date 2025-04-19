@@ -25,6 +25,6 @@ router.post("/deleteCheckIn", adminController.deleteCheckIn);
 router.post("/unPublishCheckIn", adminController.unPublishCheckIn);
 
 // handle post request for getting analytics result for a check-in
-router.post("/checkInAnayltics", adminController.getCheckInAnalytics);
+router.get("/checkInAnayltics", adminController.getCheckInAnalytics);
 
 module.exports = router;
