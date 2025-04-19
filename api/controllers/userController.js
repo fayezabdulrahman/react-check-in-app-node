@@ -73,13 +73,15 @@ const getAllSubmittedCheckIns = async (req, res) => {
     const userInRequest = req.user;
 
     const allSubmittedCheckIns = await CheckInResponse.find({ submittedBy: userInRequest._id })
-    .select("createdAt checkInId")
-    .populate("checkInId", "-_id -createdBy -published -questions -__v");
+    .select("createdAt checkInId answers")
+    .populate("checkInId", "-_id -createdBy -published -__v");
+
+    console.log('all submitted checkins ', allSubmittedCheckIns);
 
     // Transform the response to match the desired structure
     const transformedCheckIns = allSubmittedCheckIns.map((checkIn) => ({
       _id: checkIn._id,
-      data: { checkInId: checkIn.checkInId.checkInId },
+      data: { checkInId: checkIn.checkInId.checkInId, answers: checkIn.answers, questions: checkIn.checkInId.questions },
       createdAt: checkIn.createdAt,
     }));
 
