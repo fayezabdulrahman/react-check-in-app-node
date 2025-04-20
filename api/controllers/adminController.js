@@ -249,6 +249,7 @@ const getCheckInAnalytics = async (req, res) => {
     console.log('responses ', responses);
 
     res.status(200).send({
+      checkInId: checkIn.checkInId,
       message: "Check-in anayltics results successful",
       count: uniqueUserResponsesCount.length,
       responses,
