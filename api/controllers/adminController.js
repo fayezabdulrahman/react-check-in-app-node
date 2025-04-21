@@ -34,12 +34,12 @@ const searchForPublishedCheckIn = async (req, res) => {
     if (publishedCheckin) {
       res.status(200).send({
         message: "Published check-in available",
-        checkIn: publishedCheckin,
+        checkIn: [publishedCheckin],
       });
     } else {
       res
         .status(200)
-        .send({ message: "No published check-in found", checkIn: null });
+        .send({ message: "No published check-in found", checkIn: [] });
     }
   } catch (error) {
     res.status(500).send({ message: error.message, error: error });
