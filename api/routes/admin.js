@@ -27,4 +27,12 @@ router.post("/unPublishCheckIn", adminController.unPublishCheckIn);
 // handle post request for getting analytics result for a check-in
 router.get("/checkInAnayltics", adminController.getCheckInAnalytics);
 
+// handle get request for retrieving all check ins with their responses
+router.get("/allCheckinsWithResponses", adminController.getAllCheckInsWithResponses);
+
+// handle get request for retrieving all published check ins
+router.get("/allPublishedCheckIns", adminController.findAllPublishedCheckIns);
+
+
+
 module.exports = router;
