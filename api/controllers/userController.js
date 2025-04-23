@@ -4,6 +4,7 @@ const CheckInResponse = require("../models/CheckInResponse");
 const submitCheckIn = async (req, res) => {
   try {
     const { checkInId, answers } = req.body;
+
     const userInRequest = req.user;
 
     // Find the check-in by ID
@@ -23,7 +24,7 @@ const submitCheckIn = async (req, res) => {
 
     res
       .status(201)
-      .send({ message: "Successfully submitted check-in", answered: true });
+      .send({ message: "Successfully Submitted Check-in", answered: true });
   } catch (error) {
     console.log(error);
     res
@@ -36,30 +37,60 @@ const getAnsweredCheckIn = async (req, res) => {
   try {
     const userInRequest = req.user;
 
-    // Find the currently published check-in
-    const publishedCheckIn = await CheckIn.findOne({ published: true });
+    // Get all published check-ins
+    const publishedCheckIns = await CheckIn.find({ published: true });
 
-    if (!publishedCheckIn) {
-      return res.status(200).send({ message: "No Published Check-ins found", checkIn: null  });
+    if (!publishedCheckIns || publishedCheckIns.length === 0) {
+      return res.status(200).send({
+        message: "No published Check-ins found",
+        submitted: [],
+        availableToSubmit: [],
+      });
     }
 
-    const existingCheckIn = await CheckInResponse.findOne({
+    const publishedCheckInIds = publishedCheckIns.map((checkIn) => checkIn._id);
+
+    console.log("publishedCheckInIds ", publishedCheckInIds);
+
+    // Find all responses by the user for published check-ins
+    const userResponses = await CheckInResponse.find({
       submittedBy: userInRequest._id,
-      checkInId: publishedCheckIn._id,
+      checkInId: { $in: publishedCheckInIds },
       answered: true,
     });
 
-    let message;
+    console.log("user responses ", userResponses);
 
-    if (!existingCheckIn) {
-      message = "Check-in available to submit";
-    } else {
-      message = "You already have submitted the latest checkIn";
-    }
+    const submittedCheckInIds = userResponses.map((response) =>
+      response.checkInId.toString()
+    );
+
+    console.log("submittedCheckInIds ", submittedCheckInIds);
+
+    // Combine submitted check-ins with user answers + createdAt
+    const submitted = publishedCheckIns
+      .filter((checkIn) => submittedCheckInIds.includes(checkIn._id.toString()))
+      .map((checkIn) => {
+        const matchingResponse = userResponses.find(
+          (res) => res.checkInId.toString() === checkIn._id.toString()
+        );
+        return {
+          checkIn,
+          response: matchingResponse?.answers,
+          createdAt: matchingResponse?.createdAt,
+        };
+      });
+
+    const availableToSubmit = publishedCheckIns.filter(
+      (checkIn) => !submittedCheckInIds.includes(checkIn._id.toString())
+    );
+
     res.status(200).send({
-      message: message,
-      existingCheckIn: existingCheckIn,
+      message: "Successfully retrieved Check-ins for user",
+      submitted,
+      availableToSubmit,
     });
+
   } catch (error) {
     res.status(500).send({
       error: error.message,
@@ -72,19 +103,24 @@ const getAllSubmittedCheckIns = async (req, res) => {
   try {
     const userInRequest = req.user;
 
-    const allSubmittedCheckIns = await CheckInResponse.find({ submittedBy: userInRequest._id })
-    .select("createdAt checkInId answers")
-    .populate("checkInId", "-_id -createdBy -published -__v");
+    const allSubmittedCheckIns = await CheckInResponse.find({
+      submittedBy: userInRequest._id,
+    })
+      .select("createdAt checkInId answers")
+      .populate("checkInId", "-_id -createdBy -published -__v");
 
-    console.log('all submitted checkins ', allSubmittedCheckIns);
+    console.log("all submitted checkins ", allSubmittedCheckIns);
 
     // Transform the response to match the desired structure
     const transformedCheckIns = allSubmittedCheckIns.map((checkIn) => ({
       _id: checkIn._id,
-      data: { checkInId: checkIn.checkInId.checkInId, answers: checkIn.answers, questions: checkIn.checkInId.questions },
+      data: {
+        checkInId: checkIn.checkInId.checkInId,
+        answers: checkIn.answers,
+        questions: checkIn.checkInId.questions,
+      },
       createdAt: checkIn.createdAt,
     }));
-
 
     res.status(200).send({
       submittedCheckIns: transformedCheckIns,
@@ -95,11 +131,10 @@ const getAllSubmittedCheckIns = async (req, res) => {
       message: "Error retrieving your submitted check-ins",
     });
   }
-
 };
 
 module.exports = {
   getAnsweredCheckIn,
   submitCheckIn,
-  getAllSubmittedCheckIns
+  getAllSubmittedCheckIns,
 };
