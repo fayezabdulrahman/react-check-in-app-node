@@ -1,4 +1,3 @@
-const User = require("../models/User");
 const CheckIn = require("../models/CheckIn");
 const CheckInResponse = require("../models/CheckInResponse");
 const submitCheckIn = async (req, res) => {
@@ -42,7 +41,7 @@ const getAnsweredCheckIn = async (req, res) => {
 
     if (!publishedCheckIns || publishedCheckIns.length === 0) {
       return res.status(200).send({
-        message: "No published Check-ins found",
+        message: "No Published Check-ins found",
         submitted: [],
         availableToSubmit: [],
       });

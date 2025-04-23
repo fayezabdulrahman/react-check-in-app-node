@@ -6,12 +6,6 @@ const router = express.Router();
 // handle post request for creating a check-in
 router.post("/createCheckin", adminController.createCheckIn);
 
-// handle post request for retrieving published check-in
-router.get("/publishedCheckin", adminController.searchForPublishedCheckIn);
-
-// handle get request to retrieve all check-ins
-router.get("/allCheckins", adminController.getAllCheckIn);
-
 // handle post request for publishing a check-in
 router.post("/publishCheckIn", adminController.publishCheckIn);
 
@@ -24,15 +18,8 @@ router.post("/deleteCheckIn", adminController.deleteCheckIn);
 // handle post request for unpublishing a check-in
 router.post("/unPublishCheckIn", adminController.unPublishCheckIn);
 
-// handle post request for getting analytics result for a check-in
-router.get("/checkInAnayltics", adminController.getCheckInAnalytics);
-
 // handle get request for retrieving all check ins with their responses
 router.get("/allCheckinsWithResponses", adminController.getAllCheckInsWithResponses);
-
-// handle get request for retrieving all published check ins
-router.get("/allPublishedCheckIns", adminController.findAllPublishedCheckIns);
-
 
 
 module.exports = router;

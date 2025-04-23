@@ -24,88 +24,6 @@ const createCheckIn = async (req, res) => {
   }
 };
 
-const searchForPublishedCheckIn = async (req, res) => {
-  try {
-    // Query to find the document that has published is true
-    const publishedCheckin = await CheckIn.findOne({ published: true });
-
-    console.log("published check in from backend ", publishedCheckin);
-
-    if (publishedCheckin) {
-      const uniqueUserResponsesCount = await CheckInResponse.distinct(
-        "submittedBy",
-        { checkInId: publishedCheckin._id }
-      );
-
-      const responses = await CheckInResponse.find(
-        { checkInId: publishedCheckin._id },
-        { answers: 1, _id: 0 }
-      ).populate("submittedBy", "firstName lastName -_id");
-      res.status(200).send({
-        message: "Published check-in available",
-        checkIn: [publishedCheckin],
-        responseCount: uniqueUserResponsesCount.length,
-        responses,
-      });
-    } else {
-      res
-        .status(200)
-        .send({ message: "No published check-in found", checkIn: [] });
-    }
-  } catch (error) {
-    res.status(500).send({ message: error.message, error: error });
-  }
-};
-
-const findAllPublishedCheckIns = async (req, res) => {
-  try {
-    // Query to find the documents that has published is true
-    const publishedCheckins = await CheckIn.find({ published: true });
-
-    console.log("published check ins from backend ", publishedCheckins);
-
-    if (publishedCheckins) {
-      // const uniqueUserResponsesCount = await CheckInResponse.distinct(
-      //   "submittedBy",
-      //   { checkInId: publishedCheckin._id }
-      // );
-
-      // const responses = await CheckInResponse.find(
-      //   { checkInId: publishedCheckin._id },
-      //   { answers: 1, _id: 0 }
-      // ).populate("submittedBy", "firstName lastName -_id");
-      res.status(200).send({
-        message: "Published check-in available",
-        publishedCheckIns: publishedCheckins,
-        // responseCount: uniqueUserResponsesCount.length,
-        // responses,
-      });
-    } else {
-      res
-        .status(200)
-        .send({ message: "No published check-ins found", publishedCheckIns: [] });
-    }
-  } catch (error) {
-    res.status(500).send({ message: error.message, error: error });
-  }
-};
-
-const getAllCheckIn = async (req, res) => {
-  try {
-    // query all documents in our CheckIn collection
-    const allCheckin = await CheckIn.find().select("-_id"); // exclude ID
-
-    logger.info("Retreving all check-ins");
-
-    res.status(200).send({
-      message: "Checks-ins retrieved successfully",
-      checkIns: allCheckin,
-    });
-  } catch (error) {
-    res.status(500).send({ message: error.message, error: error });
-  }
-};
-
 const publishCheckIn = async (req, res) => {
   try {
     // get the check-in from the request body
@@ -114,10 +32,6 @@ const publishCheckIn = async (req, res) => {
     if (!checkInToPublish) {
       res.status(400).send({ message: "Check-in is required" });
     }
-
-    logger.info("Unpublishing previously published check-in");
-    // unpublish previously published check-in
-    // await CheckIn.updateMany({ published: true }, { published: false });
 
     // publish new check-in selected from admin
     logger.info("Publishing selected Check-in ", checkInToPublish);
@@ -130,27 +44,9 @@ const publishCheckIn = async (req, res) => {
     console.log("results ", result);
 
     if (result) {
-      // we have a published check in
-
-      // get check in unique responses
-      // const uniqueUserResponsesCount = await CheckInResponse.distinct(
-      //   "submittedBy",
-      //   { checkInId: result._id }
-      // );
-
-      // console.log("unique responses ", uniqueUserResponsesCount);
-      // find respponses for the published check in if any
-      // const responses = await CheckInResponse.find(
-      //   { checkInId: result._id },
-      //   { answers: 1, _id: 0 }
-      // ).populate("submittedBy", "firstName lastName -_id");
-
-      // console.log("responses when publishing check in ", responses);
       res.status(200).send({
         message: "Check-in Published Successfully",
-        checkIn: result.toObject()
-        // responseCount: uniqueUserResponsesCount.length,
-        // responses,
+        checkIn: result.toObject(),
       });
     } else {
       res
@@ -278,46 +174,6 @@ const unPublishCheckIn = async (req, res) => {
   }
 };
 
-const getCheckInAnalytics = async (req, res) => {
-  try {
-    // i will have check in id passed
-    const { checkInId } = req.query;
-
-    console.log("checkInId to get analytics for ", checkInId);
-    if (!checkInId) {
-      return res.status(400).send({ message: "Check-in is required" });
-    }
-    const checkIn = await CheckIn.findOne({ checkInId: checkInId });
-
-    if (!checkIn) {
-      return res.status(404).send({ message: "CheckIn not found" });
-    }
-
-    // Count the number of unique users who submitted responses for the specific CheckIn
-    //It uses distinct to get the unique submittedBy user IDs for responses to the specific CheckIn and counts them.
-    const uniqueUserResponsesCount = await CheckInResponse.distinct(
-      "submittedBy",
-      { checkInId: checkIn._id }
-    );
-
-    const responses = await CheckInResponse.find(
-      { checkInId: checkIn._id },
-      { answers: 1, _id: 0 }
-    ).populate("submittedBy", "firstName lastName -_id");
-
-    console.log("responses ", responses);
-
-    res.status(200).send({
-      checkInId: checkIn.checkInId,
-      message: "Check-in anayltics results successful",
-      count: uniqueUserResponsesCount.length,
-      responses,
-    });
-  } catch (error) {
-    res.status(500).send({ message: "count error", error: error.message });
-  }
-};
-
 const getAllCheckInsWithResponses = async (req, res) => {
   try {
     // Step 1: Get all check-ins
@@ -360,13 +216,9 @@ const getAllCheckInsWithResponses = async (req, res) => {
 
 module.exports = {
   createCheckIn,
-  searchForPublishedCheckIn,
-  getAllCheckIn,
   publishCheckIn,
   updateCheckIn,
   deleteCheckIn,
   unPublishCheckIn,
-  getCheckInAnalytics,
   getAllCheckInsWithResponses,
-  findAllPublishedCheckIns
 };
