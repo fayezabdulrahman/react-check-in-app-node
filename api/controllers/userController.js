@@ -49,8 +49,6 @@ const getAnsweredCheckIn = async (req, res) => {
 
     const publishedCheckInIds = publishedCheckIns.map((checkIn) => checkIn._id);
 
-    console.log("publishedCheckInIds ", publishedCheckInIds);
-
     // Find all responses by the user for published check-ins
     const userResponses = await CheckInResponse.find({
       submittedBy: userInRequest._id,
@@ -58,13 +56,9 @@ const getAnsweredCheckIn = async (req, res) => {
       answered: true,
     });
 
-    console.log("user responses ", userResponses);
-
     const submittedCheckInIds = userResponses.map((response) =>
       response.checkInId.toString()
     );
-
-    console.log("submittedCheckInIds ", submittedCheckInIds);
 
     // Combine submitted check-ins with user answers + createdAt
     const submitted = publishedCheckIns
@@ -107,8 +101,6 @@ const getAllSubmittedCheckIns = async (req, res) => {
     })
       .select("createdAt checkInId answers")
       .populate("checkInId", "-_id -createdBy -published -__v");
-
-    console.log("all submitted checkins ", allSubmittedCheckIns);
 
     // Transform the response to match the desired structure
     const transformedCheckIns = allSubmittedCheckIns.map((checkIn) => ({

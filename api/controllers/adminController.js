@@ -41,8 +41,6 @@ const publishCheckIn = async (req, res) => {
       { new: true } // This option ensures the updated document is returned
     );
 
-    console.log("results ", result);
-
     if (result) {
       res.status(200).send({
         message: "Check-in Published Successfully",
@@ -154,8 +152,6 @@ const unPublishCheckIn = async (req, res) => {
       { new: true } // This option ensures the updated document is returned
     ).select("-_id"); // exclude ID;
 
-    console.log("result of unpublishing check-in ", result);
-
     if (result) {
       res.status(200).send({
         message: "Check-in Unpublished Successfully",
@@ -186,8 +182,6 @@ const getAllCheckInsWithResponses = async (req, res) => {
           { checkInId: checkIn._id },
           { answers: 1, _id: 0 }
         ).populate("submittedBy", "firstName lastName -_id");
-
-        console.log("resoonses for check in ", responses);
 
         const uniqueUserIds = await CheckInResponse.distinct("submittedBy", {
           checkInId: checkIn._id,
