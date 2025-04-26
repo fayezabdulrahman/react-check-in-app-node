@@ -21,6 +21,7 @@ const loginValidation = yup.object({
 
 const questionValidation = yup.object({
   label: yup.string().required("Question is required"),
+  description: yup.string().default(''),
   componentType: yup.string(),
   selectOptions: yup.array().of(yup.string()).default([]),
   radioOptions: yup.array().of(yup.string()).default([]),
