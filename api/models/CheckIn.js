@@ -16,6 +16,10 @@ const checkInSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    anonymous: {
+      type: Boolean,
+      default: false,
+    },
     questions: {
       type: [questionSchema],
       default: [],

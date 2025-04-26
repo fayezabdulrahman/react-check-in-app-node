@@ -30,6 +30,7 @@ const checkInValidation = yup.object({
   checkInId: yup.string().required("CheckIn id is required"),
   createdBy: yup.string().required("Publisher Name is Required"),
   published: yup.boolean().default(false),
+  anonymous: yup.boolean().default(false),
   questions: yup.array().of(questionValidation).default([]),
 });
 
