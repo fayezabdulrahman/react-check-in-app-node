@@ -9,6 +9,10 @@ const questionSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    description: {
+      type: String,
+      default: ''
+    },
     componentType: {
       type: String,
       enum: ["text", "select", "radio", "textarea"],

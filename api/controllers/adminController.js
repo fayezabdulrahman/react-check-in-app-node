@@ -13,6 +13,7 @@ const createCheckIn = async (req, res) => {
       checkInId: checkIn.checkInId,
       createdBy: checkIn.createdBy,
       published: checkIn.published,
+      anonymous: checkIn.anonymous,
       questions: checkIn.questions,
     });
 
