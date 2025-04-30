@@ -3,6 +3,8 @@ const authRoute = require("./api/routes/auth.js");
 const adminRoute = require("./api/routes/admin.js");
 const userRoute = require("./api/routes/user.js");
 const healthRoute = require("./api/routes/health.js");
+const notificationRoute = require("./api/routes/notifiaction.js");
+
 const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -33,6 +35,9 @@ app.use(`${SERVER_PREFIX}/auth`, auth0TokenService.verifyToken, authRoute);
 
 app.use(`${SERVER_PREFIX}/admin`, auth0TokenService.verifyToken, adminRoute);
 app.use(`${SERVER_PREFIX}/user`, auth0TokenService.verifyToken, auth0TokenService.validateUser, userRoute);
+
+// notification
+app.use(`${SERVER_PREFIX}/admin`,auth0TokenService.validateUser,  notificationRoute);
 
 // non protected route
 app.use(`${SERVER_PREFIX}`, healthRoute);
