@@ -6,7 +6,7 @@ const checkInSchema = new mongoose.Schema(
     checkInId: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     createdBy: {
       type: String,
@@ -24,7 +24,8 @@ const checkInSchema = new mongoose.Schema(
       type: [questionSchema],
       default: [],
     },
-  }
+  },
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("CheckIn", checkInSchema);

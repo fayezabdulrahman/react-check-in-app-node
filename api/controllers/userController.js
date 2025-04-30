@@ -37,7 +37,7 @@ const getAnsweredCheckIn = async (req, res) => {
     const userInRequest = req.user;
 
     // Get all published check-ins
-    const publishedCheckIns = await CheckIn.find({ published: true });
+    const publishedCheckIns = await CheckIn.find({ published: true }).sort({createdAt: -1});
 
     if (!publishedCheckIns || publishedCheckIns.length === 0) {
       return res.status(200).send({
@@ -98,7 +98,7 @@ const getAllSubmittedCheckIns = async (req, res) => {
 
     const allSubmittedCheckIns = await CheckInResponse.find({
       submittedBy: userInRequest._id,
-    })
+    }).sort({createdAt: -1})
       .select("createdAt checkInId answers")
       .populate("checkInId", "-_id -createdBy -published -__v");
 
