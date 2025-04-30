@@ -6,7 +6,7 @@ const checkInSchema = new mongoose.Schema(
     checkInId: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     createdBy: {
       type: String,
@@ -16,11 +16,16 @@ const checkInSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    anonymous: {
+      type: Boolean,
+      default: false,
+    },
     questions: {
       type: [questionSchema],
       default: [],
     },
-  }
+  },
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("CheckIn", checkInSchema);

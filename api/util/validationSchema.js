@@ -21,6 +21,7 @@ const loginValidation = yup.object({
 
 const questionValidation = yup.object({
   label: yup.string().required("Question is required"),
+  description: yup.string().default(''),
   componentType: yup.string(),
   selectOptions: yup.array().of(yup.string()).default([]),
   radioOptions: yup.array().of(yup.string()).default([]),
@@ -30,6 +31,7 @@ const checkInValidation = yup.object({
   checkInId: yup.string().required("CheckIn id is required"),
   createdBy: yup.string().required("Publisher Name is Required"),
   published: yup.boolean().default(false),
+  anonymous: yup.boolean().default(false),
   questions: yup.array().of(questionValidation).default([]),
 });
 
