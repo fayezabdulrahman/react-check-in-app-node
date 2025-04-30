@@ -28,14 +28,25 @@ jobs:
 
   deploy:
       needs: build
-      runs-on: self-hosted # runs on aws-ec2
+      runs-on: ubuntu-latest  # Using GitHub's cloud-hosted runner
       steps:
-        - name: Pull Docker Image
-          run: docker pull ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app:latest
-        - name: Delete old container
-          run: docker rm -f ez-check-in-node-app
-        - name: Run Docker Container
-          run: |
-            docker run -d --network ezcheckin-network -p 9000:9000 \
-            --name ez-check-in-node-app \
-            ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app
+        - name: SSH into EC2 and deploy
+          uses: appleboy/ssh-action@v1.0.0
+          with:
+            host: ${{ secrets.EC2_HOST }}
+            username: ${{ secrets.EC2_USER }}
+            key: ${{ secrets.EC2_SSH_KEY }}
+            script: |
+              docker pull ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app:latest
+              docker rm -f ez-check-in-node-app || true
+              docker run -d --network ezcheckin-network -p 9000:9000 \
+              --name ez-check-in-node-app \
+              ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app
+          # run: docker pull ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app:latest
+        # - name: Delete old container
+          # run: docker rm -f ez-check-in-node-app
+        # - name: Run Docker Container
+        #   run: |
+        #     docker run -d --network ezcheckin-network -p 9000:9000 \
+        #     --name ez-check-in-node-app \
+        #     ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app
