@@ -42,11 +42,3 @@ jobs:
               docker run -d --network ezcheckin-network -p 9000:9000 \
               --name ez-check-in-node-app \
               ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app
-          # run: docker pull ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app:latest
-        # - name: Delete old container
-          # run: docker rm -f ez-check-in-node-app
-        # - name: Run Docker Container
-        #   run: |
-        #     docker run -d --network ezcheckin-network -p 9000:9000 \
-        #     --name ez-check-in-node-app \
-        #     ${{ secrets.DOCKER_USERNAME }}/ez-check-in-node-app
