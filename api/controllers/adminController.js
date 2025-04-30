@@ -173,8 +173,8 @@ const unPublishCheckIn = async (req, res) => {
 
 const getAllCheckInsWithResponses = async (req, res) => {
   try {
-    // Step 1: Get all check-ins
-    const allCheckIns = await CheckIn.find();
+    // Step 1: Get all check-ins sorted by latest check in first
+    const allCheckIns = await CheckIn.find().sort({ createdAt: -1 });
 
     // Step 2: Loop through each check-in and attach responses
     const checkInsWithResponses = await Promise.all(
