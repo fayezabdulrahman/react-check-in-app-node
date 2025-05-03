@@ -4,6 +4,10 @@ const CheckIn = require("./CheckIn");
 
 const answerSchema = new mongoose.Schema(
   {
+    questionId: {
+      type: Number,
+      required: true
+    },
     question: {
       type: String,
       required: true,
