@@ -15,7 +15,7 @@ const questionSchema = new mongoose.Schema(
     },
     componentType: {
       type: String,
-      enum: ["text", "select", "radio", "textarea"],
+      enum: ["text", "select", "radio", "textarea", "multiselect"],
       default: "text",
     },
     selectOptions: {
